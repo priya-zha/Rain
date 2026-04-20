@@ -16,10 +16,15 @@ from llama_index.llms.anthropic import Anthropic
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 
-api_key = (
-    os.environ.get("ANTHROPIC_API_KEY")
-    or st.secrets.get("ANTHROPIC_API_KEY", None)
-)
+# Try Streamlit secrets first (for cloud), fall back to environment (for local)
+try:
+    api_key = st.secrets.get("ANTHROPIC_API_KEY", None)
+except Exception:
+    api_key = None
+
+if not api_key:
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+
 if api_key:
     api_key = api_key.strip()
 
