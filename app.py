@@ -16,10 +16,10 @@ from llama_index.llms.anthropic import Anthropic
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 
-api_key = os.environ.get("ANTHROPIC_API_KEY")
+api_key = os.environ.get("ANTHROPIC_API_KEY") or st.secrets.get("ANTHROPIC_API_KEY", None)
 
 if not api_key:
-    st.error("ANTHROPIC_API_KEY not set. Run: export ANTHROPIC_API_KEY=sk-ant-your-key-here")
+    st.error("ANTHROPIC_API_KEY not set. Add it in Streamlit Cloud → Settings → Secrets.")
     st.stop()
 
 Settings.llm = Anthropic(
