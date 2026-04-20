@@ -16,30 +16,38 @@ from llama_index.llms.anthropic import Anthropic
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 
-api_key = os.environ.get("ANTHROPIC_API_KEY") or st.secrets.get("ANTHROPIC_API_KEY", None)
+api_key = (
+    os.environ.get("ANTHROPIC_API_KEY")
+    or st.secrets.get("ANTHROPIC_API_KEY", None)
+)
+if api_key:
+    api_key = api_key.strip()
 
 if not api_key:
     st.error("ANTHROPIC_API_KEY not set. Add it in Streamlit Cloud → Settings → Secrets.")
     st.stop()
 
-Settings.llm = Anthropic(
-    model="claude-sonnet-4-5",
-    api_key=api_key,
-    max_tokens=1024,
-    system_prompt=(
-        "You are a helpful assistant for RAIN, a digital marketing agency "
-        "specializing in campaigns for banks and credit unions. "
-        "Answer questions about RAIN's services, clients, case studies, "
-        "approach, and expertise using only the information provided to you. "
-        "Be friendly, clear, and concise. "
-        "If something is not covered in the provided information, say so honestly. "
-        "Always end every response with this exact line on a new line: "
-        "'For more information, visit [rainlocal.com](https://www.rainlocal.com) "
-        "or email support@rainlocal.com'"
-    ),
-)
+@st.cache_resource
+def init_llm_settings(_api_key):
+    Settings.llm = Anthropic(
+        model="claude-sonnet-4-5",
+        api_key=_api_key,
+        max_tokens=1024,
+        system_prompt=(
+            "You are a helpful assistant for RAIN, a digital marketing agency "
+            "specializing in campaigns for banks and credit unions. "
+            "Answer questions about RAIN's services, clients, case studies, "
+            "approach, and expertise using only the information provided to you. "
+            "Be friendly, clear, and concise. "
+            "If something is not covered in the provided information, say so honestly. "
+            "Always end every response with this exact line on a new line: "
+            "'For more information, visit [rainlocal.com](https://www.rainlocal.com) "
+            "or email support@rainlocal.com'"
+        ),
+    )
+    Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
-Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+init_llm_settings(api_key)
 
 
 STORAGE_DIR = str(pathlib.Path(__file__).parent / "storage")
