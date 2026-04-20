@@ -5,6 +5,7 @@ Set key:   export ANTHROPIC_API_KEY=sk-ant-your-key-here
 """
 
 import os
+import pathlib
 import streamlit as st
 from llama_index.core import (
     StorageContext,
@@ -41,11 +42,13 @@ Settings.llm = Anthropic(
 Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 
 
+STORAGE_DIR = str(pathlib.Path(__file__).parent / "storage")
+
 @st.cache_resource
 def load_index():
-    if not os.path.exists("storage/"):
+    if not os.path.exists(STORAGE_DIR):
         return None
-    storage_context = StorageContext.from_defaults(persist_dir="storage/")
+    storage_context = StorageContext.from_defaults(persist_dir=STORAGE_DIR)
     return load_index_from_storage(storage_context)
 
 index = load_index()
